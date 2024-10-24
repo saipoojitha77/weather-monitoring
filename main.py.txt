@@ -1,0 +1,30 @@
+# main.py
+import time
+from weather_api import get_weather_data
+from data_processing import process_weather_data, calculate_daily_summary
+from alert_system import check_alerts
+from database import create_database, store_daily_summary
+from config import CITIES, UPDATE_INTERVAL, TEMP_THRESHOLD
+
+def main():
+    conn = create_database()
+    weather_data = []
+
+    while True:
+        for city in CITIES:
+            data = get_weather_data(city)
+            processed_data = process_weather_data(data)
+            if processed_data:
+                processed_data['city'] = city  # Store city name in processed data
+                weather_data.append(processed_data)
+
+        daily_summary = calculate_daily_summary(weather_data)
+        for date, summary in daily_summary.items():
+            store_daily_summary(conn, date, summary['average_temp'], summary['max_temp'], summary['min_temp'], summary['dominant_condition'])
+
+        check_alerts(weather_data, TEMP_THRESHOLD)
+        weather_data.clear()  # Clear data for the next interval
+        time.sleep(UPDATE_INTERVAL)
+
+if __name__ == "__main__":
+    main()

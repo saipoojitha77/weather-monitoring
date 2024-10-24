@@ -1,0 +1,46 @@
+# data_processing.py
+from datetime import datetime
+from collections import defaultdict
+
+def convert_to_celsius(kelvin_temp):
+    return kelvin_temp - 273.15
+
+def process_weather_data(data):
+    if not data:
+        return None
+    
+    main = data.get('main', {})
+    weather = data.get('weather', [{}])[0]
+    
+    temp = convert_to_celsius(main.get('temp', 0))
+    feels_like = convert_to_celsius(main.get('feels_like', 0))
+    condition = weather.get('main', 'Unknown')
+    
+    timestamp = data.get('dt', 0)
+    date = datetime.fromtimestamp(timestamp).date()
+    
+    return {
+        'date': date,
+        'temperature': temp,
+        'feels_like': feels_like,
+        'condition': condition
+    }
+
+def calculate_daily_summary(weather_data):
+    daily_summary = defaultdict(lambda: {'count': 0, 'temp_sum': 0, 'max_temp': float('-inf'), 'min_temp': float('inf'), 'conditions': defaultdict(int)})
+    
+    for data in weather_data:
+        if data:
+            date = data['date']
+            daily_summary[date]['count'] += 1
+            daily_summary[date]['temp_sum'] += data['temperature']
+            daily_summary[date]['max_temp'] = max(daily_summary[date]['max_temp'], data['temperature'])
+            daily_summary[date]['min_temp'] = min(daily_summary[date]['min_temp'], data['temperature'])
+            daily_summary[date]['conditions'][data['condition']] += 1
+            
+    # Finalize the summaries
+    for date, summary in daily_summary.items():
+        summary['average_temp'] = summary['temp_sum'] / summary['count']
+        summary['dominant_condition'] = max(summary['conditions'], key=summary['conditions'].get)
+        
+    return daily_summary

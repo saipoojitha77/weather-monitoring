@@ -1,0 +1,5 @@
+# alert_system.py
+def check_alerts(weather_data, temp_threshold):
+    for data in weather_data:
+        if data and data['temperature'] > temp_threshold:
+            print(f"ALERT: Temperature in {data['city']} exceeded {temp_threshold}°C: {data['temperature']}°C")

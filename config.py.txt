@@ -1,0 +1,5 @@
+# config.py
+API_KEY = 'your_api_key_here'  # Replace with your OpenWeatherMap API key
+CITIES = ['Delhi', 'Mumbai', 'Chennai', 'Bangalore', 'Kolkata', 'Hyderabad']
+UPDATE_INTERVAL = 300  # Update interval in seconds
+TEMP_THRESHOLD = 35  # Temperature threshold for alerts
